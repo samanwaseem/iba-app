@@ -366,4 +366,110 @@ const taskList=()=>{const q=(S.taskQuery||'').trim().toLowerCase(),f=S.rf||'All'
 stLoad();
 if(/researcher/.test(location.hash))T.rm=1;
 R();
+   <!-- PASTE THIS WHOLE BLOCK IN index.html, directly before the final </body></html> -->
+<style>
+.f,.c,.md,.g2>*{min-width:0;max-width:100%}
+.f>div{min-width:0;max-width:100%}
+input,select,textarea{display:block;width:100%;max-width:100%;min-width:0;-webkit-appearance:none;appearance:none;border-radius:10px}
+input[type=date],input[type=time]{min-height:46px;line-height:1.2;-webkit-min-logical-width:calc(100% - 24px)}
+input[type=date]::-webkit-date-and-time-value,input[type=time]::-webkit-date-and-time-value{min-width:0;text-align:left}
+input[type=date]::-webkit-calendar-picker-indicator,input[type=time]::-webkit-calendar-picker-indicator{margin:0}
+select{padding-right:36px;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%236b0a2b' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 14px center;background-size:12px 8px}
+textarea{resize:none}
+.ct{overflow-x:clip}
+body.susrun .sus-screen .search-close{display:none}
+</style>
+<script>
+(function(){
+/* snapshot of the starting data, restored before every study task */
+const SEED={REM:JSON.stringify(REM),IN:JSON.stringify(IN),LT:JSON.stringify(LT)};
+
+/* ---- one task per feature: [key, instruction, label, start screen] ---- */
+TN.length=0;
+TN.push(
+['att','Mark your attendance using the class code 123456','Mark attendance','att'],
+['day','In the attendance tracker, open Tuesday 27 Oct to see that day’s classes','Tracker day','att'],
+['idcard','Show your student ID card','ID card','att'],
+['search','Use the search feature to find the shuttle timings','Search','att'],
+['admit','Open your Spring 2026 admit card','Admit card','att'],
+['marks','Check your current marks for Human Computer Interaction (HCI)','HCI marks','att'],
+['trn','Open your ongoing academic transcript','Transcript','att'],
+['exams','Find the Midterms exam schedule for Spring 2026','Exam schedule','att'],
+['dir','Change the campus shuttle so it leaves from City Campus','Shuttle direction','att'],
+['tim','Open the shuttle timings page','Shuttle timings','att'],
+['alarm','Set a shuttle reminder for 10 minutes before departure, then tap “Simulate alarm” and turn the alarm off','Shuttle alarm','att'],
+['bus','Sign up for a point bus (any point and pickup stop)','Point bus','att'],
+['cancel','Cancel your point bus booking','Cancel bus','att'],
+['rem','Starting from the task list, find “HCI assignment submission” on the calendar','Find on calendar','rem'],
+['addtask','Add a new task, mark it as high priority with the star, and set a reminder for 1 day before','Task + reminder','att'],
+['edittask','Edit the task “Data Structures quiz” and change its time to 10:00 AM','Edit task','att'],
+['deltask','Delete the task “Read Cloud Computing notes”','Delete task','att'],
+['lms','Import your coursework deadlines from the LMS','LMS import','att'],
+['intern','Submit your internship documents (any details, attach the offer letter)','Internship docs','att'],
+['iedit','Open your internship history, edit the Systems Limited submission and save a change','Edit internship','att'],
+['letter','Request a recommendation letter from CDC','Rec. letter','att'],
+['ldl','Download the issued letter from your letter requests','Letter download','att'],
+['navset','Hide the Exams tab from the bottom bar','Customize nav','att'],
+['notif','Turn off class reminder notifications','Notifications','att'],
+['help','Report a problem through Help and support','Report problem','att'],
+['signout','Sign out of the app','Sign out','att']
+);
+
+/* ---- success detection: hooks that run after the original actions ---- */
+const post=(n,f)=>{const o=A[n];A[n]=function(v){const r=o.apply(this,arguments);try{f(v)}catch(e){}return r}};
+post('m',v=>{if(v=='idcard')done('idcard')});
+post('searchNavigate',v=>{if(v=='tim'){done('search');done('tim')}});
+post('day',()=>{if(S.day==11)done('day')});
+post('seg',v=>{if(v=='Midterms'&&F.sem=='Spring'&&F.yr=='2026')done('exams')});
+post('dir',()=>{if(S.dir==1)done('dir')});
+post('stopAlarm',()=>{if(S.lead==10)done('alarm')});
+post('go',v=>{const g={adm:'admit',trn:'trn',tim:'tim',bok:'bus',cdok:'intern',clok:'letter'}[v];if(g)done(g)});
+post('lms',()=>done('lms'));
+post('toast',v=>{if(v=='Letter downloaded')done('ldl');if(v=='Thanks — your report was sent')done('help')});
+post('toolbar',v=>{if(v=='ex'&&!S.toolbar.includes('ex'))done('navset')});
+post('tog',v=>{if(v=='c'&&!S.tg.c)done('notif')});
+
+const oy=A.yes;
+A.yes=function(){const t=S.cf&&S.cf[0],had=REM.some(r=>r.title=='Read Cloud Computing notes');const r=oy.apply(this,arguments);
+ if(t=='Cancel point bus booking?'&&!S.bk)done('cancel');
+ if(t=='Delete task?'&&had&&!REM.some(r=>r.title=='Read Cloud Computing notes'))done('deltask');
+ if(t=='Sign out?'&&S.v=='login')done('signout');
+ if(t=='Save your changes?')done('iedit');
+ return r};
+
+const os=A.saveRem;
+A.saveRem=function(){const id=S.remEdit;const r=os.apply(this,arguments);const x=REM.find(q=>q.id==1);if(id==1&&x&&x.time=='10:00')done('edittask');return r};
+
+/* ---- clean app state before every task ---- */
+A.stStart=function(){
+ const t=TN[T.idx];
+ T.cur=t;T.taps=0;T.miss=0;T.err=0;T.ft=null;T.st='run';
+ resetApp(t[3]);
+ REM=JSON.parse(SEED.REM);REMID=100;IN=JSON.parse(SEED.IN);LT=JSON.parse(SEED.LT);
+ S.bk=null;S.seg='Finals';S.tg={c:1,s:1,e:1,j:0,b:0};S.rem=0;S.lead=5;S.calDay='2026-11-11';S.rmSel=[];S.mk=0;
+ if(t[0]=='cancel')S.bk={id:'PB-26123',rt:'B',pk:'Tariq Road',bs:'Fall 2026',sid:'12345'};
+ T.t0=Date.now();
+};
+
+/* ---- study ends with the SUS form ---- */
+A.svNext=function(){
+ if(!T.svE)return;
+ const r=T.rows[T.pend];if(r){r.seq=T.svE;r.cmt=(T.svC||'').trim()}
+ T.pend=null;T.idx++;T.svE=0;T.svC='';S.m=null;
+ if(T.idx>=TN.length){T.st='sus';T.susA=[];S.sus=1;S.searchOpen=0;document.body.classList.add('susrun')}
+ else T.st='brief';
+ stSave();
+};
+A.susDone=function(){
+ const a=Array.from({length:10},(_,i)=>(T.susA||[])[i]);if(a.some(x=>!x))return;
+ T.susL=T.susL.filter(s=>s.pid!==T.pid);
+ T.susL.push({pid:T.pid,score:susScore(a),ans:a,ts:new Date().toISOString()});
+ S.sus=0;
+ if(T.st=='sus'){T.st='end';document.body.classList.remove('susrun')}else{T.rm=1;S.ts='SUS saved'}
+ stSave();
+};
+post('exitSt',()=>document.body.classList.remove('susrun'));
+post('stClose',()=>document.body.classList.remove('susrun'));
+})();
+</script>
 </script></body></html>
