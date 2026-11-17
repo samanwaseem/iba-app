@@ -366,6 +366,7 @@ const taskList=()=>{const q=(S.taskQuery||'').trim().toLowerCase(),f=S.rf||'All'
 stLoad();
 if(/researcher/.test(location.hash))T.rm=1;
 R();
+</script>
    <!-- PASTE THIS WHOLE BLOCK IN index.html, directly before the final </body></html> -->
 <style>
 .f,.c,.md,.g2>*{min-width:0;max-width:100%}
@@ -471,5 +472,4 @@ A.susDone=function(){
 post('exitSt',()=>document.body.classList.remove('susrun'));
 post('stClose',()=>document.body.classList.remove('susrun'));
 })();
-</script>
 </script></body></html>
